@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Charts Bar Chart Example</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['bar']});
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.load('current', {'packages':['table']});
+        google.charts.setOnLoadCallback(drawTable);
+        google.charts.setOnLoadCallback(drawChart);
+    
+        function drawChart() {
+            
+            var category_data = google.visualization.arrayToDataTable({{ category_data|tojson|safe }});
+            var year_data = google.visualization.arrayToDataTable({{ year_count|tojson|safe }});
+
+            var options = {
+                title: 'Number of Nobel Laureates by Category',
+                legend: {
+                    position: 'none'
+                },
+                vAxis: {
+                    title: 'Category'
+                },
+                hAxis: {
+                    title: 'Number of Laureates'
+                },
+                bars: 'horizontal',
+                bar: {
+                    groupWidth: '80%'
+                },
+                series: {
+                    0: {
+                        annotations: {
+                            textStyle: {
+                                fontName: 'Arial',
+                                fontSize: 14,
+                                bold: true,
+                                color: '#000000'
+                            }
+                        }
+                    }
+                }
+            };
+    
+            var year_options = {
+                title: 'Nobel Prizes by Year',
+                legend: { position: 'none' },
+                width: 1200,
+                height: 800,
+                hAxis: {
+                    title: 'Year',
+                    format: '####',
+                    ticks: [1905, 1910, 1915, 1920, 1925, 1930, 1935, 1940, 1945, 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020],
+                },
+                vAxis: {
+                    title: 'Number of Prizes',
+                    format: '#',
+                    ticks: [2, 4, 6, 8, 10, 12, 14, 16],
+                }
+            };
+
+            var category_chart = new google.charts.Bar(document.getElementById('category_chart'));
+            category_chart.draw(category_data, google.charts.Bar.convertOptions(options));
+            
+            var chart = new google.visualization.LineChart(document.getElementById('year_chart'));
+            chart.draw(year_data, year_options);
+        }
+
+        function drawTable() {
+            var prize_data = new google.visualization.DataTable();
+            prize_data.addColumn('string', 'Category');
+            prize_data.addColumn('number', 'Count by Year');
+            {% for data in prize_data %}
+                prize_data.addRow(['{{ data[0] }}', parseInt('{{ data[1] }}')]);
+            {% endfor %}
+
+            var options = {
+                width: 1200,
+                height: 400,
+                title: 'Grand Total of Nobel Prize by Category (1901 - 2022)'
+            };
+
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+            try {
+                table.draw(prize_data, options);
+            } catch (error) {
+                console.log('Error drawing table:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <p>Grand Total of Nobel Prize by Category (1901 - 2022)</p>
+    <div id="table_div" style="width: 800px; height: 500px;"></div>
+    <div id="category_chart" style="width: 800px; height: 500px;"></div>
+    <div id="year_chart" style="width: 800px; height: 500px;"></div>
+    
+</body>
+</html>
